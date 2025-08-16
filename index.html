@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cotizador de Tatuajes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0F14; --surface:#11161D; --text:#F6F8FA; --text-dim:#7E8793;
+  --muted:#BFC6CF; --line:#FFFFFF1F; --accent:#3F6076; --accent-deep:#0E2A3A; --glow:#E7F1FF;
+  --r:18px; --shadow:0 20px 60px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--text); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background: radial-gradient(1200px 800px at 70% 10%, #11161D 0%, var(--bg) 55%);
+}
+.wrapper{max-width:1080px;margin:40px auto;padding:24px}
+h1{font-family:"Space Grotesk",Inter,sans-serif;font-weight:700;letter-spacing:.3px;margin:0 0 12px}
+.sub{color:var(--text-dim);margin-bottom:28px}
+.panel{
+  background: color-mix(in oklab, #11161D 85%, white 15%);
+  border:1px solid var(--line); border-radius: var(--r); box-shadow:var(--shadow);
+  backdrop-filter: blur(14px); padding:22px; margin-bottom:18px;
+}
+.grid{display:grid; gap:16px}
+@media(min-width:900px){ .grid{grid-template-columns:1.2fr 1fr} }
+
+label{display:block; font-size:.92rem; color:var(--muted); margin-bottom:8px}
+select,input{width:100%; padding:12px 14px; border-radius:12px; background:#0E1218; color:var(--text);
+  border:1px solid var(--line); outline:none}
+input[type="number"]{appearance:textfield}
+.row{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.help{font-size:.85rem;color:var(--text-dim);margin-top:6px}
+
+.btn{padding:12px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer;transition:.25s}
+.btn:hover{border-color:#dfe9ff55;box-shadow:0 0 0 6px #dfe9ff22,0 8px 28px rgba(0,0,0,.4)}
+.file{display:flex;align-items:center;gap:12px}
+.file input{padding:10px;background:#0E1218}
+
+.summary h2{margin:0 0 10px;font-family:"Space Grotesk";letter-spacing:.3px}
+.price{
+  font-family:"Space Grotesk",Inter,sans-serif; font-size:46px; font-weight:700;
+  background: linear-gradient(180deg,#E7F1FF,#BFC6CF); -webkit-background-clip:text; color:transparent
+}
+.table{width:100%; border-collapse:collapse; margin-top:10px}
+.table td{padding:8px 0; border-bottom:1px solid var(--line); color:var(--muted)}
+.table td:first-child{color:var(--text);}
+
+.badge{font:600 .78rem/1 "Space Grotesk"; color:#BFC6CF; background:#0E1218; border:1px solid var(--line); padding:6px 10px; border-radius:999px}
+.footer{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.note{color:var(--text-dim);font-size:.86rem}
+
+/* Botón WhatsApp */
+.btn-whatsapp{
+  background:#25D366; color:#0b0f14; border:none; font-weight:700;
+}
+.btn-whatsapp:hover{box-shadow:0 0 0 6px #25d36633,0 8px 28px rgba(0,0,0,.4)}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>Cotizador de Tatuajes</h1>
+  <div class="sub">Selecciona zona, estilo y tamaño. El precio se actualiza en tiempo real.</div>
+
+  <div class="grid">
+    <!-- FORM -->
+    <div class="panel">
+      <div class="row">
+        <div>
+          <label>Hemilado del cuerpo</label>
+          <select id="side">
+            <option value="derecho">Derecho</option>
+            <option value="izquierdo">Izquierdo</option>
+            <option value="central">Central</option>
+          </select>
+        </div>
+        <div>
+          <label>Región</label>
+          <select id="region">
+            <option value="cabeza_cuello">Cabeza / Cuello</option>
+            <option value="brazo">Brazo</option>
+            <option value="torso">Torso</option>
+            <option value="pierna">Pierna</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label>Parte específica</label>
+        <select id="part"></select>
+        <div class="help">Ej.: Antebrazo interno, costillas externas, gemelo, etc.</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Estilo</label>
+          <select id="style">
+            <option>Blackwork</option>
+            <option>Realismo</option>
+            <option>Microrrealismo</option>
+            <option>Minimalismo</option>
+            <option>A color</option>
+            <option>Estilo ilustrativo</option>
+            <option>Tribal</option>
+            <option>Tribal gótico</option>
+          </select>
+        </div>
+        <div>
+          <label>Dimensiones (cm)</label>
+          <div class="row">
+            <input id="w" type="number" min="1" placeholder="Ancho">
+            <input id="h" type="number" min="1" placeholder="Alto">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label>Subir referencia (imagen)</label>
+        <div class="file">
+          <input id="file" type="file" accept="image/*">
+          <span class="badge" id="filename">Sin archivo</span>
+        </div>
+        <div class="help">PNG/JPG. Máx. 10 MB.</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="panel summary">
+      <h2>Estimado</h2>
+      <div class="price" id="price">$0</div>
+      <table class="table">
+        <tr><td>Área</td><td id="area">0 cm²</td></tr>
+        <tr><td>Zona (multiplicador)</td><td id="zoneMult">–</td></tr>
+        <tr><td>Estilo (multiplicador)</td><td id="styleMult">–</td></tr>
+        <tr><td>Base por cm²</td><td id="base">$2.50</td></tr>
+        <tr><td>Mínimo aplicado</td><td id="min">$0</td></tr>
+      </table>
+      <div class="footer">
+        <button class="btn" id="reset">Reiniciar</button>
+        <button class="btn btn-whatsapp" id="sendWA">Enviar por WhatsApp</button>
+        <span class="note">* WhatsApp no permite adjuntar automáticamente archivos desde la web. Envía la imagen al abrir el chat.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ----- Datos de negocio (edita a tu gusto) ----- */
+const BASE_PER_CM2 = 2.5;
+const STYLE_MULT = {
+  "Blackwork":0.7, "Realismo":1.3, "Microrrealismo":1.2, "Minimalismo":0.7,
+  "A color":1.3, "Estilo ilustrativo":0.9, "Tribal":1.0, "Tribal gótico":1.1
+};
+const ZONE_MULT = {
+  facil:1.0, media:1.15, dificil:1.3
+};
+const PARTS = {
+  cabeza_cuello: {
+    mult:"dificil",
+    items:["Cara - mejilla","Cara - sien","Oreja externa","Oreja interna","Nuca","Garganta"]
+  },
+  brazo: {
+    mult:"media",
+    items:["Hombro externo","Bíceps","Tríceps","Antebrazo externo","Antebrazo interno","Codo","Muñeca","Mano - dorso","Mano - palma","Dedos"]
+  },
+  torso: {
+    mult:"media",
+    items:["Pecho derecho","Pecho izquierdo","Esternón","Abdomen alto","Abdomen bajo","Costillas externas","Costillas internas","Ombligo / perímetro","Espalda alta","Espalda media","Espalda baja"]
+  },
+  pierna: {
+    mult:"facil",
+    items:["Muslo frontal","Muslo posterior","Rodilla","Gemelo / pantorrilla","Tibia (frontal)","Tobillo","Pie - empeine","Pie - planta","Dedos del pie"]
+  },
+  otros: {
+    mult:"dificil",
+    items:["Axila","Clavícula","Cadera / lateral","Glúteo","Cuello lateral"]
+  }
+};
+
+// Mínimos por tamaño
+function sizeMinimum(area){
+  if(area<=15) return 25;
+  if(area<=60) return 85;
+  if(area<=200) return 145;
+  return 215;
+}
+
+/* ----- UI ----- */
+const region = document.getElementById('region');
+const part = document.getElementById('part');
+const style = document.getElementById('style');
+const w = document.getElementById('w');
+const h = document.getElementById('h');
+const file = document.getElementById('file');
+const side = document.getElementById('side');
+
+let lastArea = 0;
+let lastPrice = 0;
+
+function populateParts(){
+  const conf = PARTS[region.value];
+  part.innerHTML = "";
+  conf.items.forEach(i=>{
+    const opt = document.createElement('option');
+    opt.textContent = i; opt.value = i;
+    part.appendChild(opt);
+  });
+  calc();
+}
+
+region.addEventListener('change', populateParts);
+[w,h,style,part,side].forEach(el=>el.addEventListener('input', calc));
+file.addEventListener('change', ()=> {
+  document.getElementById('filename').textContent = file.files[0]?.name || "Sin archivo";
+});
+
+document.getElementById('reset').addEventListener('click', ()=>{
+  w.value = ""; h.value=""; style.selectedIndex=0; region.selectedIndex=0; side.selectedIndex=0; populateParts();
+  document.getElementById('filename').textContent="Sin archivo";
+});
+
+/* --------- Cálculo --------- */
+function calc(){
+  const width = parseFloat(w.value)||0;
+  const height = parseFloat(h.value)||0;
+  const area = +(width*height).toFixed(1);
+  const zoneM = ZONE_MULT[ PARTS[region.value].mult ];
+  const styleM = STYLE_MULT[ style.value ];
+  const raw = area * BASE_PER_CM2 * zoneM * styleM;
+  const min = sizeMinimum(area);
+  const price = Math.max(raw, min);
+
+  // UI
+  document.getElementById('area').textContent = `${area} cm²`;
+  document.getElementById('zoneMult').textContent = `${region.options[region.selectedIndex].text} (${zoneM}×)`;
+  document.getElementById('styleMult').textContent = `${style.value} (${styleM}×)`;
+  document.getElementById('base').textContent = `$${BASE_PER_CM2.toFixed(2)}`;
+  document.getElementById('min').textContent = area? `$${min.toFixed(0)}` : "$0";
+  document.getElementById('price').textContent = `$${isFinite(price)? price.toFixed(0):0}`;
+
+  lastArea = area;
+  lastPrice = isFinite(price)? Math.round(price):0;
+}
+
+populateParts(); // init
+
+/* --------- WhatsApp --------- */
+function buildMessage(){
+  const regionText = region.options[region.selectedIndex].text;
+  const msg =
+`Hola 👋 quiero cotizar este tatuaje:
+
+• Lado: ${side.value}
+• Región: ${regionText}
+• Parte específica: ${part.value}
+• Estilo: ${style.value}
+• Tamaño: ${w.value||0} cm (ancho) × ${h.value||0} cm (alto)
+• Área: ${lastArea} cm²
+
+💵 Estimado: $${lastPrice} USD (orientativo)
+📎 Referencia: ${file.files[0]?.name || "sin archivo adjunto"}
+
+¿Me confirmas disponibilidad y proceso? Gracias.`;
+  return encodeURIComponent(msg);
+}
+
+document.getElementById('sendWA').addEventListener('click', async ()=>{
+  const phone = "573124863086";
+  const url = `https://wa.me/${phone}?text=${buildMessage()}`;
+
+  // Intento de compartir con imagen si el navegador lo soporta
+  const f = file.files[0];
+  if (f && navigator.canShare && navigator.canShare({files:[f]})) {
+    try{
+      await navigator.share({
+        files:[f],
+        text: decodeURIComponent(buildMessage())
+      });
+      return;
+    }catch(e){
+      // Si el usuario cancela o falla, abrimos wa.me con el texto
+      window.open(url, '_blank');
+      return;
+    }
+  }
+  // Fallback: abrir chat con el texto (sin imagen)
+  window.open(url, '_blank');
+});
+</script>
+</body>
+</html>
