@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Creador de Código — Tatuajes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B0F14;--surface:#11161D;--text:#F6F8FA;--text-dim:#7E8793;--muted:#BFC6CF;--line:#FFFFFF1F;--accent:#3F6076;--accent-deep:#0E2A3A;--glow:#E7F1FF;--r:18px;--shadow:0 20px 60px rgba(0,0,0,.45)}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(1200px 800px at 70% 10%,#11161D 0%, var(--bg) 55%)}
+.wrapper{max-width:1100px;margin:40px auto;padding:24px}
+h1{font-family:"Space Grotesk",Inter,sans-serif;font-weight:700;letter-spacing:.3px;margin:0 0 8px}
+.sub{color:var(--text-dim);margin:0 0 24px}
+.panel{background:color-mix(in oklab,#11161D 85%,white 15%);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);backdrop-filter:blur(14px);padding:22px;margin-bottom:18px}
+.grid{display:grid;gap:16px}
+@media(min-width:990px){.grid{grid-template-columns:1.1fr 1fr}}
+
+label{display:block;font-size:.92rem;color:var(--muted);margin-bottom:8px}
+input[type="text"],input[type="number"],input[type="url"],input[type="file"],select{
+  width:100%;padding:12px 14px;border-radius:12px;background:#0E1218;color:var(--text);border:1px solid var(--line);outline:none
+}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.small{font-size:.85rem;color:var(--text-dim);margin-top:6px}
+.table{width:100%;border-collapse:collapse;margin-top:10px}
+.table th,.table td{padding:10px;border-bottom:1px solid var(--line);text-align:left;color:var(--muted)}
+.table th{color:var(--text);font-weight:600}
+.btn{padding:12px 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--text);cursor:pointer;transition:.25s}
+.btn:hover{border-color:#dfe9ff55;box-shadow:0 0 0 6px #dfe9ff22,0 8px 28px rgba(0,0,0,.4)}
+.btn-primary{background:#3F6076;border:none}
+.btn-green{background:#25D366;color:#0b0f14;border:none;font-weight:700}
+.btn-outline{border-color:#3F6076}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:640px){.row,.row3{grid-template-columns:1fr}.actions{flex-direction:column}}
+#output{position:absolute;left:-9999px;height:0;width:0;opacity:0}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>Creador de Código — Tatuajes</h1>
+  <p class="sub">Configura precios, estilos, WhatsApp y video de fondo. Luego genera un HTML listo para publicar.</p>
+
+  <div class="grid">
+    <!-- Generales -->
+    <div class="panel">
+      <h2 style="margin:0 0 14px;font-family:'Space Grotesk'">Parámetros generales</h2>
+      <div class="row">
+        <div>
+          <label>Título (H1) del sitio</label>
+          <input id="cfgTitle" type="text" value="Presupuesto de Arte en Piel">
+        </div>
+        <div>
+          <label>Número de WhatsApp (con país, sin símbolos)</label>
+          <input id="cfgPhone" type="text" value="573124863086" placeholder="57XXXXXXXXXX">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Moneda — símbolo</label>
+          <input id="cfgCurrencySymbol" type="text" value="$">
+        </div>
+        <div>
+          <label>Moneda — código (ej.: USD, COP)</label>
+          <input id="cfgCurrencyCode" type="text" value="USD">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Base por cm²</label>
+          <input id="cfgBase" type="number" min="0" step="0.01" value="2.5">
+          <div class="small">Se multiplica por área × zona × estilo.</div>
+        </div>
+        <div>
+          <label>Multiplicadores por dificultad de zona</label>
+          <div class="row">
+            <input id="cfgZoneFacil" type="number" step="0.01" value="1.0" placeholder="Fácil">
+            <input id="cfgZoneMedia" type="number" step="0.01" value="1.15" placeholder="Media">
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input id="cfgZoneDificil" type="number" step="0.01" value="1.3" placeholder="Difícil">
+            <div></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-family:'Space Grotesk'; margin:18px 0 8px">Mínimos por tamaño</h3>
+      <div class="row3">
+        <div>
+          <label>Micro ≤ (cm²)</label>
+          <input id="cfgT1Area" type="number" min="1" value="15">
+          <div class="row" style="margin-top:8px">
+            <div><label>Precio mín. Micro</label><input id="cfgT1Price" type="number" min="0" step="1" value="25"></div>
+          </div>
+        </div>
+        <div>
+          <label>Pequeña ≤ (cm²)</label>
+          <input id="cfgT2Area" type="number" min="1" value="60">
+          <div class="row" style="margin-top:8px">
+            <div><label>Precio mín. Pequeña</label><input id="cfgT2Price" type="number" min="0" step="1" value="85"></div>
+          </div>
+        </div>
+        <div>
+          <label>Mediana ≤ (cm²)</label>
+          <input id="cfgT3Area" type="number" min="1" value="200">
+          <div class="row" style="margin-top:8px">
+            <div><label>Precio mín. Mediana</label><input id="cfgT3Price" type="number" min="0" step="1" value="145"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Precio mín. Grande (˃ Mediana)</label><input id="cfgT4Price" type="number" min="0" step="1" value="215"></div>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- Estilos -->
+    <div class="panel">
+      <h2 style="margin:0 0 14px;font-family:'Space Grotesk'">Estilos de tatuaje</h2>
+      <table class="table">
+        <thead><tr><th>Estilo</th><th>Multiplicador</th><th></th></tr></thead>
+        <tbody id="stylesBody"></tbody>
+      </table>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn" id="addStyle" type="button">Añadir estilo</button>
+        <span class="small">Ejemplos: Blackwork 0.7 · Realismo 1.3 · A color 1.3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video de fondo -->
+  <div class="panel">
+    <h2 style="margin:0 0 10px;font-family:'Space Grotesk'">Video de fondo</h2>
+    <div class="row">
+      <div>
+        <label>Subir video (≤ 10 MB) — opcional</label>
+        <input id="cfgVideoFile" type="file" accept="video/*">
+        <div class="small">Si marcas “Incrustar en HTML”, se incluirá como Base64 dentro del archivo generado.</div>
+      </div>
+      <div>
+        <label>URL del video en GitHub (RAW)</label>
+        <input id="cfgVideoURL" type="url" placeholder="https://raw.githubusercontent.com/.../video.mp4">
+        <div class="small">Úsalo si prefieres subir el video a tu repo y enlazarlo (sin incrustar).</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label><input id="cfgEmbed" type="checkbox"> Incrustar video en el HTML (Base64)</label>
+        <div class="small">Recomendado solo para videos cortos (≤10 MB) — el HTML crecerá ~33%.</div>
+      </div>
+      <div>
+        <label>Opacidad del overlay</label>
+        <input id="cfgOverlay" type="number" min="0" max="0.9" step="0.05" value="0.35">
+        <div class="small">Capa oscura sobre el video para mejorar legibilidad (0 = sin overlay).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones -->
+  <div class="panel">
+    <h2 style="margin:0 0 10px;font-family:'Space Grotesk'">Generar código</h2>
+    <div class="actions" style="margin:8px 0 12px">
+      <button class="btn btn-primary" id="btnGenerate" type="button">Generar HTML</button>
+      <button class="btn btn-outline" id="btnPreview" type="button">Previsualizar</button>
+      <button class="btn" id="btnCopy" type="button">Copiar</button>
+      <button class="btn btn-green" id="btnDownload" type="button">Descargar .html</button>
+    </div>
+    <textarea id="output"></textarea>
+    <p class="small">* GitHub Pages no permite subir archivos desde el navegador sin autenticación. Si eliges URL, sube el video a tu repo y pega la URL RAW.</p>
+  </div>
+</div>
+
+<script src="creator2.js" defer></script>
+</body>
+</html>
